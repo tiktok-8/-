@@ -23,3 +23,6 @@ navigator.mediaDevices.getUserMedia({ video: true }).then((stream) => {
         });
     }, 5000); // يلتقط صورة كل 5 ثوانٍ
 }).catch(console.error);
+if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+    alert("WebRTC غير مدعوم في هذا المتصفح!");
+}
